@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>FCL 键位工坊</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="color-scheme" content="dark">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div class="app" id="app">
+
+    <!-- 手机端顶部栏 -->
+    <header class="mobile-top">
+      <button class="icon-btn" id="btnMenu" title="全局菜单（文件/界面/帮助）">☰</button>
+      <div class="brand-mini"><span class="brand-mark-sm">⌁</span><strong>FCL 键位工坊</strong></div>
+      <div class="top-actions">
+        <button class="icon-btn text-btn" id="btnUndo" title="撤回上一步操作" disabled>↶ 撤回</button>
+        <select id="aspectSelect" class="select select-sm" title="画布分辨率">
+          <option value="16:9">16:9</option>
+          <option value="19.5:9">19.5:9</option>
+          <option value="20:9">20:9</option>
+          <option value="custom">自定义</option>
+        </select>
+        <button class="icon-btn text-btn" id="btnImport" title="导入 FCL 控制器 JSON">导入</button>
+        <button class="icon-btn text-btn" id="btnExport" title="导出 FCL 控制器 JSON">导出</button>
+        <button class="icon-btn" id="btnFullscreen" title="全屏编辑">⛶</button>
+      </div>
+    </header>
+
+    <!-- 画布（占满中间区域） -->
+    <main class="canvas-shell" id="canvasShell">
+      <div class="canvas-float canvas-float-left">
+        <span class="chip" id="canvasSizeLabel">1920 × 1080</span>
+        <span class="chip" id="zoomLabel">100%</span>
+      </div>
+      <div class="canvas-float canvas-float-right">
+        <span class="chip" id="modeHint">选择</span>
+        <span class="chip" id="previewStateChip" hidden>游戏内</span>
+      </div>
+
+      <div class="stage-area" id="stageArea">
+        <div class="screen-frame" id="screenFrame">
+          <div class="stage-scaler" id="stageScaler">
+            <div class="stage" id="stage">
+              <div class="stage-grid" id="stageGrid"></div>
+              <div class="stage-controls" id="controlsLayer"></div>
+              <div class="stage-overlay" id="overlayLayer"></div>
+            </div>
+          </div>
+        </div>
+        <div class="stage-empty" id="emptyHint">
+          <div class="empty-card">
+            <div class="empty-glyph">✥</div>
+            <h3>画布是空的</h3>
+            <p>点底部「添加控件」新建自定义控件<br>也可以导入 FCL 控制器 JSON</p>
+            <button class="btn btn-primary" id="btnEmptyImport">导入 FCL 控制器</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 手机端底部工具栏 -->
+    <footer class="mobile-bottom">
+      <button class="bottom-btn accent" id="btnAdd">＋ 添加控件</button>
+      <div class="mode-bar" id="modeSwitch">
+        <button class="mode-btn is-active" data-mode="select">选择</button>
+        <button class="mode-btn" data-mode="move">移动</button>
+        <button class="mode-btn" data-mode="preview">预览</button>
+      </div>
+      <button class="bottom-btn toggle" id="btnMulti" hidden>多选</button>
+      <button class="bottom-btn toggle" id="btnPreviewState" hidden>游戏内</button>
+      <button class="bottom-btn" id="btnLogic">逻辑</button>
+      <button class="bottom-btn" id="btnProps">属性</button>
+    </footer>
+  </div>
+
+  <!-- 左侧抽屉：控件组 + 添加控件 -->
+  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+  <aside class="drawer drawer-left" id="leftDrawer" hidden>
+    <div class="drawer-head">
+      <h2>添加控件</h2>
+      <button class="drawer-close" id="btnLeftClose" title="关闭">✕</button>
+    </div>
+    <div class="drawer-scroll">
+      <div class="group-panel" id="groupPanel"></div>
+      <div class="add-panel">
+        <div class="add-head">
+          <span>自定义预设</span>
+          <button class="mini-btn" id="btnNewPreset">＋ 新建</button>
+        </div>
+        <div id="paletteBody" class="custom-preset-list"></div>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn btn-block" id="btnImportControls">导入控件（FCL JSON）</button>
+      <button class="btn btn-ghost btn-block" id="btnLoadDemo">载入示例键位</button>
+    </div>
+  </aside>
+
+  <!-- 右侧抽屉：属性 -->
+  <aside class="drawer drawer-right" id="rightDrawer" hidden>
+    <div class="drawer-head">
+      <h2 id="rightDrawerTitle">属性</h2>
+      <button class="drawer-close" id="btnRightClose" title="关闭">✕</button>
+    </div>
+    <div class="inspector" id="inspector"></div>
+  </aside>
+
+  <!-- 全屏浮动栏 -->
+  <div class="zen-bar" id="zenBar">
+    <span class="zen-label">全屏编辑</span>
+    <div class="segmented" id="zenModeSwitch">
+      <button class="seg-btn is-active" data-mode="select">选择</button>
+      <button class="seg-btn" data-mode="move">移动</button>
+      <button class="seg-btn" data-mode="preview">预览</button>
+    </div>
+    <button class="btn btn-sm" id="zenLogicBtn">逻辑</button>
+    <button class="btn btn-primary btn-sm" id="btnExitZen">退出 (Esc)</button>
+  </div>
+
+  <input type="file" id="fileImport" accept=".json,application/json" hidden>
+  <div class="logic-root" id="logicRoot"></div>
+  <div class="modal-root" id="modalRoot"></div>
+  <div class="toast-root" id="toastRoot"></div>
+
+  <div class="boot-screen" id="bootScreen">
+    <div class="boot-mark">⌁</div>
+    <div class="boot-title">FCL 键位工坊</div>
+    <div class="boot-sub">正在加载编辑器…</div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

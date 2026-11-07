@@ -1,0 +1,13 @@
+{
+  "name": "fcl-key-workbench",
+  "private": true,
+  "type": "module",
+  "description": "FCL 键位工坊 —— 可视化键位编辑框架",
+  "scripts": {
+    "build": "node build.mjs",
+    "serve": "python3 dev_server.py 8899"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
